@@ -1,0 +1,78 @@
+---
+title: "HW1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(fpp2)
+```
+
+```{r }
+data <- "C:/Users/andre/Downloads/retail.xlsx"
+retaildata <- readxl::read_excel(data, skip=1)
+myts <- ts(retaildata[,"A3349627V"],frequency=12, start=c(1982,4))
+```
+```{r}
+autoplot(myts) + ggtitle("Liquor Retail") + xlab("Year") 
+ggseasonplot(myts) + ggtitle("Seasonal Liquor Retail") + xlab("Year") 
+ggsubseriesplot(myts) + ggtitle("Sub Series Liquor Retail") + xlab("Year") 
+gglagplot(myts) + ggtitle("Lag Liquor Retail") + xlab("Year") 
+ggAcf(myts,lag=48) + ggtitle("ACF Liquor Retail")
+```
+from the raw data plot I see trend and seasonality. the seasonal plot also suggest seasonality since there is always a decrease in Jan and increase in Dec. The ACF plot also suggest both trend and seasonality becasue auto correalation are significant and the correalation decease while lag increase   
+
+```{r}
+autoplot(arrivals)
+ggseasonplot(arrivals[,'NZ']) + ggtitle("NZ") + xlab("Year")  + ylab("Thounds")
+ggseasonplot(arrivals[,'UK']) + ggtitle("UK") + xlab("Year")  + ylab("Thounds")
+ggseasonplot(arrivals[,'US']) + ggtitle("US") + xlab("Year")  + ylab("Thounds")
+ggseasonplot(arrivals[,'Japan']) + ggtitle("Japan") + xlab("Year")  + ylab("Thounds")
+ggsubseriesplot(arrivals[,'NZ']) + ggtitle("NZ") + xlab("Year")  + ylab("Thounds")
+ggsubseriesplot(arrivals[,'UK']) + ggtitle("UK") + xlab("Year")  + ylab("Thounds")
+ggsubseriesplot(arrivals[,'US']) + ggtitle("US") + xlab("Year")  + ylab("Thounds")
+ggsubseriesplot(arrivals[,'Japan']) + ggtitle("Japan") + xlab("Year")  + ylab("Thounds")
+```
+from all plots, it show NZ data has seasonality and upward trend UK has seasonality and arrivals usually decease from Q1 to Q2 and increase from Q3 to Q4 US has seasonality in Q1 but no obervious trend. Japan's data is more random 
+
+```{r}
+ddj <- diff(dj)
+autoplot(ddj) + ggtitle("Daily Change") + ylab("Price") +xlab("Trading Day")
+ggAcf(ddj,lag=48) + ggtitle("ACF for Daily Change")
+```
+the difference plot looks random except a huge drop around 100th day but ACF shows small correaltion for lag 35 and 48, so the change is very close to white noise but not compeletely
+
+```{r}
+autoplot(usnetelec)
+(lambda <- BoxCox.lambda(usnetelec))
+autoplot(BoxCox(usnetelec,lambda))
+autoplot(usgdp)
+(lambda <- BoxCox.lambda(usgdp))
+autoplot(BoxCox(usgdp,lambda))
+autoplot(mcopper)
+(lambda <- BoxCox.lambda(mcopper))
+autoplot(BoxCox(mcopper,lambda))
+autoplot(enplanements)
+(lambda <- BoxCox.lambda(enplanements))
+autoplot(BoxCox(enplanements,lambda))
+
+```
+```{r}
+myts.train <- window(myts, end=c(2010,12))
+myts.test <- window(myts, start=2011)
+autoplot(myts) +
+  autolayer(myts.train, series="Training") +
+  autolayer(myts.test, series="Test")
+fc <- snaive(myts.train)
+accuracy(fc,myts.test)
+checkresiduals(fc)
+```
+from the ACF plot I see the residuals are not uncorrelated and from the distribuction also shows that the residuals are right skewed 
+the accuracy for training set is much better than the test set among all error measures 
+
+
+
+
+
